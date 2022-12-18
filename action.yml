@@ -2,13 +2,18 @@
 name: Build Conda Image
 description: Create a container with a specific Conda environment pre-installed
 inputs:
+  # Github repo access
+  github-token:
+    description: A Github repo access token
+    required: true
+
   # Registry Access
-  registry-url:
+  registry-name:
     decription: Container registry location
     default: ghcr.io
   registry-username:
     description: Username for container registry access
-    required: true
+    default: ${{ github.actor }}
   registry-password:
     description: Password or token for container registry access
     required: true
@@ -28,13 +33,15 @@ inputs:
   conda-rc:
     description: Set the sources for conda packages for the image
     default: conda-rc.yaml
-
   conda-env:
     description: The environment spec file
     default: conda-env.yaml
+  conda-python:
+    description: The version of python to use in the container
+    required: true
 
 outputs:
-  greeting:
+  image-id:
     description: A greeting from an action
     value: steps.build.outputs.image-id
 
@@ -51,6 +58,18 @@ runs:
       run: |
         ${{ github.action_path }}/build-image.sh
       env:
-        TEST_VAR: test_value
-  
+        GITHUB_TOKEN: ${{ github.inputs.github-token }}
+        
+        REGISTRY_NAME: ${{ github.inputs.registry-name }}
+        REGISTRY_USERNAME: ${{ github.inputs.registry-username }}
+        REGISTRY_PASSWORD: ${{ github.inputs.registry-password }}
+
+        IMAGE_NAME: ${{ github.inputs.image-name }}
+        IMAGE_TAG: ${{ github.inputs.image-tag }}
+        IMAGE_CACHE: ${{ github.inputs.use_cached }}
+
+        CONDA_RC: ${ github.inputs.conda-rc }}
+        CONDA_ENV: ${{ github.inputs.conda-env }}
+        CONDA_PYTHON: ${{ github.inputs.conda-python }}
+
   
