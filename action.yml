@@ -68,7 +68,7 @@ runs:
         IMAGE_TAG: ${{ github.inputs.image-tag }}
         IMAGE_CACHE: ${{ github.inputs.use_cached }}
 
-        CONDA_RC: ${ github.inputs.conda-rc }}
+        CONDA_RC: ${{ github.inputs.conda-rc }}
         CONDA_ENV: ${{ github.inputs.conda-env }}
         CONDA_PYTHON: ${{ github.inputs.conda-python }}
 
