@@ -26,7 +26,7 @@ inputs:
   image-tag:
     description: 'The tag to apply to the image'
     required: true
-  use-cache:
+  image-cached:
     description: 'Skip the building of the image if it is already cached'
     default: 'true'
 
@@ -67,7 +67,7 @@ runs:
 
         IMAGE_NAME: ${{ inputs.image-name }}
         IMAGE_TAG: ${{ inputs.image-tag }}
-        IMAGE_CACHE: ${{ inputs.use_cached }}
+        IMAGE_CACHE: ${{ inputs.image-cached }}
 
         CONDA_RC: ${{ inputs.conda-rc }}
         CONDA_ENV: ${{ inputs.conda-env }}
