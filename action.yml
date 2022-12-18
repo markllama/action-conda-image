@@ -2,11 +2,33 @@
 name: Build Conda Image
 description: Create a container with a specific Conda environment pre-installed
 inputs:
+  # Registry Access
+  registry-url:
+    decription: Container registry location
+    default: ghcr.io
+  registry-username:
+    description: Username for container registry access
+    required: true
+  registry-password:
+    description: Password or token for container registry access
+    required: true
+
+  # Container Image Spec
+  image-name:
+    description: 'The base name of the image to create'
+    default: ${{ github.repository }}-miniconda3-cache
+  image-tag:
+    description: 'The tag to apply to the image'
+    required: true
+  use-cache:
+    description: 'Skip the building of the image if it is already cached'
+    default: 'true'
+  
   greeting:
     description: A simple string to test
     required: false
     default: Hello Image
-
+  
 outputs:
   greeting:
     description: A greeting from an action
@@ -19,9 +41,17 @@ outputs:
 runs:
   using: composite
   steps:
-    - run: echo Hello ${{ inputs.greeting }}
+    - name: Print a greeting
+      run: echo Hello ${{ inputs.greeting }}
       shell: bash
-    - run: echo "greeting='${{ inputs.greeting }}'"
+    - name: Write a greeting output value
+      run: echo "greeting='${{ inputs.greeting }}'"
       shell: bash
+      id: greeting
+    - name: Run the build script
+      run: |
+        ${{ github.action_path }}/build-image.sh
+      shell: bash
+      id: build
   
   
