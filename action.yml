@@ -20,6 +20,8 @@ runs:
   using: composite
   steps:
     - run: echo Hello ${{ inputs.greeting }}
+      shell: bash
     - run: echo "greeting='${{ inputs.greeting }}'"
+      shell: bash
   
   
