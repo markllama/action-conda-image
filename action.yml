@@ -67,7 +67,7 @@ runs:
 
         IMAGE_NAME: ${{ inputs.image-name }}
         IMAGE_TAG: ${{ inputs.image-tag }}
-        IMAGE_CACHE: ${{ inputs.image-cached }}
+        IMAGE_CACHED: ${{ inputs.image-cached }}
 
         CONDA_RC: ${{ inputs.conda-rc }}
         CONDA_ENV: ${{ inputs.conda-env }}
