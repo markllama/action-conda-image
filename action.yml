@@ -23,7 +23,16 @@ inputs:
   use-cache:
     description: 'Skip the building of the image if it is already cached'
     default: 'true'
-    
+
+  # Miniconda configuration parameters
+  conda-rc:
+    description: Set the sources for conda packages for the image
+    default: conda-rc.yaml
+
+  conda-env:
+    description: The environment spec file
+    default: conda-env.yaml
+
 outputs:
   greeting:
     description: A greeting from an action
@@ -37,9 +46,11 @@ runs:
   using: composite
   steps:
     - name: Run the build script
+      id: build
+      shell: bash
       run: |
         ${{ github.action_path }}/build-image.sh
-      shell: bash
-      id: build
+      env:
+        TEST_VAR: test_value
   
   
