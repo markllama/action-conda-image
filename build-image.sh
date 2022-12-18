@@ -31,7 +31,7 @@ function main() {
 
     IMAGE_PATH=${REGISTRY_NAME}/${IMAGE_NAME}
     
-    if use_cached_image && cached_image_exists ${IMAGE_PATH} ; then
+    if use_cached_image && image_exists ${IMAGE_PATH} ; then
         echo I found it and will use it
     else
         echo I must build it
