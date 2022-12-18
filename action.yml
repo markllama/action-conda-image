@@ -1,0 +1,25 @@
+---
+name: Build Conda Image
+description: Create a container with a specific Conda environment pre-installed
+inputs:
+  greeting:
+    description: A simple string to test
+    required: false
+    default: Hello Image
+
+outputs:
+  greeting:
+    description: A greeting from an action
+    value: steps.greeting.outputs.greeting
+
+#  docker-image:
+#    description: 'The Docker image with the loaded environment'
+#    value: ${{ steps.build.outputs.image }}
+
+runs:
+  using: composite
+  steps:
+    - run: echo Hello ${{ inputs.greeting }}
+    - run: echo "greeting='${{ inputs.greeting }}'"
+  
+  
