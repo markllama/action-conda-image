@@ -18,7 +18,7 @@
 function main() {
     echo "I am running!"
     echo "=== BEGIN Environment ==="
-    env
+    env | sort
     echo "===  END  Environment ==="
 }
 
