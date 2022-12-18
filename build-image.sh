@@ -28,8 +28,10 @@ function main() {
 
     login_to_registry ${REGISTRY_NAME} ${REGISTRY_USERNAME} ${REGISTRY_PASSWORD} ||
         fail "Error logging into registry ${REGISTRY_NAME}"
+
+    IMAGE_PATH=${REGISTRY_NAME}/${IMAGE_NAME}
     
-    if use_cached_image && cached_image_exists ${IMAGE_NAME} ${IMAGE_TAG} ; then
+    if use_cached_image && cached_image_exists ${IMAGE_PATH} ; then
         echo I found it and will use it
     else
         echo I must build it
@@ -57,11 +59,10 @@ function use_cached_image() {
 }
 
 # A cached image must exist with the provided name *and* tag
-function cached_image_exists() {
+function image_exists() {
     local image_name=$1
-    local image_tag=$2
 
-    ${DOCKER} manifest inspect ${image_name} && ${DOCKER} manifest inspect ${image_tag}
+    ${DOCKER} manifest inspect ${image_name}
 }
 
 main $*
