@@ -23,16 +23,11 @@ inputs:
   use-cache:
     description: 'Skip the building of the image if it is already cached'
     default: 'true'
-  
-  greeting:
-    description: A simple string to test
-    required: false
-    default: Hello Image
-  
+    
 outputs:
   greeting:
     description: A greeting from an action
-    value: steps.greeting.outputs.greeting
+    value: steps.build.outputs.image-id
 
 #  docker-image:
 #    description: 'The Docker image with the loaded environment'
@@ -41,13 +36,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Print a greeting
-      run: echo Hello ${{ inputs.greeting }}
-      shell: bash
-    - name: Write a greeting output value
-      run: echo "greeting='${{ inputs.greeting }}'"
-      shell: bash
-      id: greeting
     - name: Run the build script
       run: |
         ${{ github.action_path }}/build-image.sh
