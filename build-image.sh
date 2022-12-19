@@ -131,7 +131,8 @@ function build_image() {
     local hash_tag=$1
     local python_tag=$2
     local token=$3
-    
+
+    set -x
     docker buildx build \
            --no-cache \
            --pull \
@@ -139,6 +140,7 @@ function build_image() {
            --build-arg PULL_TOKEN="${token}" \
            --tag "${hash_tag}" --tag "${python_tag}" . ||
         fatal "docker build failed"
+    set +x
 }
 
 
