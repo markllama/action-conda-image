@@ -116,7 +116,7 @@ function prepare_conda_env() {
 
     # 
     echo Preparing conda environment file
-    yq -y . ${env_file}
+    yq . ${env_file}
 }
 
 function build_image() {
