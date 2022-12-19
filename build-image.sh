@@ -22,6 +22,9 @@
 
 function main() {
 
+    # Quit fast if no registry password is provided
+    [ -n "${REGISTRY_PASSWORD}" ] || fatal "missing required parameter: registry-token"
+
     # Quit fast if env file isn't provided
     [ -f ${CONDA_ENV} ] || fatal "missing required file: ${CONDA_ENV}"
 
