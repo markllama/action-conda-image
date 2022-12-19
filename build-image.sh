@@ -125,7 +125,7 @@ function prepare_conda_env() {
         yq eval ".dependencies += [\"python == ${new_version}\"]"
     else
         # replace the default python version with the provided value
-        local python_index=$(yq ".dependencies[] | select(test(\"${initial_version_string}\")) | path | .[-1]")
+        local python_index=$(yq ".dependencies[] | select(test(\"${initial_version_string}\")) | path | .[-1]" ${env_file})
         yq eval ".dependencies[${python_index}] |= \"python ==${new_version}\""
     fi
     set +x
