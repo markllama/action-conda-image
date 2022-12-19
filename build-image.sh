@@ -21,25 +21,28 @@
 : ${DOCKER:=docker}
 
 function main() {
-    echo "I am running!"
-    echo "=== BEGIN Environment ==="
-    env | sort
-    echo "===  END  Environment ==="
-
     login_to_registry ${REGISTRY_NAME} ${REGISTRY_USERNAME} ${REGISTRY_PASSWORD} ||
         fail "Error logging into registry ${REGISTRY_NAME}"
 
     local image_path=${REGISTRY_NAME}/${IMAGE_NAME}
-    
-    if use_cached_image &&
-            image_exists ${image_path}/${IMAGE_TAG} &&
-            image_exists ${image_path}/$(image_tag ${CONDA_ENV} ${CONDA_PYTHON_VERSION})
-    then
-        echo I found it and will use it
-    else
-        echo I must build it
+    local image_hash=$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON_VERSION})
+
+    # The image needs rebuilding if:
+    #   The user requests rebuild
+    #   The image does not exist with the appropriate tag
+    #   Or the image does not exist with the appropriate hash
+    #   Or the two images are not identical
+    if !use_cached_image ||
+            !(image_exists ${image_path}/${IMAGE_TAG} && image_exists ${image_path}/${image_hash})
+    then 
+        prepare_conda_rc
+        prepare_conda_env
+        build_image
     fi
 
+    # The image is not cached or the caller requires rebuild
+    echo "image=${image_path}/${image_hash}" >> ${GITHUB_OUTPUT}
+    
 }
 
 function fail() {
@@ -78,6 +81,20 @@ function conda_env_hash() {
         sha256sum |
         cut -d' ' -f1
 }
+
+#
+function prepare_conda_rc() {
+    echo Preparing condarc file
+}
+
+function prepare_conda_env() {
+    echo Preparing conda environment file
+}
+
+function build_image() {
+    echo building image
+}
+
 
 main $*
 
