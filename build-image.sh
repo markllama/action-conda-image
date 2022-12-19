@@ -21,10 +21,6 @@
 : ${DOCKER:=docker}
 
 function main() {
-
-    echo "=== BEGIN env ==="
-    env | sort
-    echo "=== ENT env ==="
     
     login_to_registry ${REGISTRY_NAME} ${REGISTRY_USERNAME} ${REGISTRY_PASSWORD} ||
         fail "Error logging into registry ${REGISTRY_NAME}"
@@ -43,9 +39,11 @@ function main() {
     then
         echo cache exists: using it
     else
-        prepare_conda_rc
-        prepare_conda_env
-        build_image
+        local build_dir=${GITHUB_ACTION_PATH}/build
+        mkdir -p ${build_dir}
+        prepare_conda_rc > ${build_dir}/condarc.yaml
+        prepare_conda_env > ${build_dir}/environment.yaml
+        build_image ${build_dir}
     fi
 
     # The image is not cached or the caller requires rebuild
@@ -92,7 +90,16 @@ function conda_env_hash() {
 
 #
 function prepare_conda_rc() {
-    echo Preparing condarc file
+    local conda_rc_file=$1
+
+    if [ -n "${conda_rc_file}" -a -r ${conda_rc_file} ] ; then
+        cat ${conda_rc_file}
+    else
+        cat <<EOF
+channels:
+  - conda-forge
+EOF
+    fi    
 }
 
 function prepare_conda_env() {
