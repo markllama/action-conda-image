@@ -44,8 +44,8 @@ function main() {
     else
         local build_dir=${GITHUB_ACTION_PATH}/build
         mkdir -p ${build_dir}
-        prepare_conda_rc > ${build_dir}/condarc.yaml
-        prepare_conda_env > ${build_dir}/environment.yaml
+        prepare_conda_rc ${CONDA_RC_FILE} > ${build_dir}/condarc.yaml
+        prepare_conda_env ${CONDA_ENV_FILE} ${CONDA_PYTHON_VERSION} > ${build_dir}/environment.yaml
         build_image ${build_dir}
     fi
 
@@ -92,10 +92,10 @@ function conda_env_hash() {
 
 #
 function prepare_conda_rc() {
-    local conda_rc_file=$1
+    local rc_file=$1
 
-    if [ -n "${conda_rc_file}" -a -r ${conda_rc_file} ] ; then
-        cat ${conda_rc_file}
+    if [ -n "${rc_file}" -a -r ${rc_file} ] ; then
+        cat ${rc_file}
     else
         cat <<EOF
 channels:
@@ -105,6 +105,10 @@ EOF
 }
 
 function prepare_conda_env() {
+    local env_file=$1
+    local python_version=$2
+
+    # 
     echo Preparing conda environment file
 }
 
