@@ -55,7 +55,7 @@ runs:
   steps:
     - name: Run the build script
       id: build
-      shell: bash
+      shell: bash -e -o pipefail
       run: |
         ${{ github.action_path }}/build-image.sh
       env:

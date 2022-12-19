@@ -39,21 +39,19 @@ function main() {
     #   The image does not exist with the appropriate tag
     #   Or the image does not exist with the appropriate hash
     #   Or the two images are not identical
-    if use_cached_image && 
-            image_exists ${image_path}/${IMAGE_TAG} &&
-            image_exists ${image_path}/${image_hash}
-    then
-        echo cache exists: using it
+
+    local hashed_digest=$(image_digest ${image_path}/${image_hash})
+    if use_cached_image && [ -n ${hashed_digest} ] ; then
+        if [ "$(image_digest ${image_path}/${IMAGE_TAG})" == ${hashed_digest} ] ; then
+            echo cache exists: using it
+        else
+            echo rebuild anyway
+        fi
     else
         local build_dir=${GITHUB_ACTION_PATH}/build
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC} > ${build_dir}/condarc.yaml
         prepare_conda_env ${CONDA_ENV} ${CONDA_PYTHON} > ${build_dir}/environment.yaml
-        echo "=== input conda env file ==="
-        cat ${CONDA_ENV}
-        echo "=== conda env file ==="
-        cat ${build_dir}/environment.yaml
-        echo "======================"
         build_image ${build_dir}
     fi
 
@@ -81,10 +79,10 @@ function use_cached_image() {
 }
 
 # A cached image must exist with the provided name *and* tag
-function image_exists() {
-    local image_name=$1
+function image_digest() {
+    local image_path=$1
 
-    ${DOCKER} manifest inspect ${image_name}
+    local digest=$(${DOCKER} manifest inspect ${image_path}) || digest="")
 }
 
 # Generate a hash using a conda env file and the desired Python version string
