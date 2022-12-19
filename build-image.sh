@@ -29,9 +29,12 @@ function main() {
     login_to_registry ${REGISTRY_NAME} ${REGISTRY_USERNAME} ${REGISTRY_PASSWORD} ||
         fail "Error logging into registry ${REGISTRY_NAME}"
 
-    IMAGE_PATH=${REGISTRY_NAME}/${IMAGE_NAME}
+    local image_path=${REGISTRY_NAME}/${IMAGE_NAME}
     
-    if use_cached_image && image_exists ${IMAGE_PATH} ; then
+    if use_cached_image &&
+            image_exists ${image_path}/${IMAGE_TAG} &&
+            image_exists ${image_path}/$(image_tag ${CONDA_ENV} ${CONDA_PYTHON_VERSION})
+    then
         echo I found it and will use it
     else
         echo I must build it
@@ -63,6 +66,17 @@ function image_exists() {
     local image_name=$1
 
     ${DOCKER} manifest inspect ${image_name}
+}
+
+# Generate a hash using a conda env file and the desired Python version string
+function conda_env_hash() {
+    local conda_env_file=$1
+    local conda_python_version=$2
+
+    # Add one line to the end of the file
+    sed -e "\$aPYTHON_VERSION=${conda_python_version}" ${conda_env_file} |
+        sha256sum |
+        cut -d' ' -f1
 }
 
 main $*
