@@ -32,7 +32,7 @@ function main() {
         fatal "Error logging into registry ${REGISTRY_NAME}"
 
     local image_path=${REGISTRY_NAME}/${IMAGE_NAME}
-    local image_hash=$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON_VERSION})
+    local image_hash=$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON})
 
     # The image needs rebuilding if:
     #   The user requests rebuild
@@ -48,7 +48,7 @@ function main() {
         local build_dir=${GITHUB_ACTION_PATH}/build
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC} > ${build_dir}/condarc.yaml
-        prepare_conda_env ${CONDA_ENV} ${CONDA_PYTHON_VERSION} > ${build_dir}/environment.yaml
+        prepare_conda_env ${CONDA_ENV} ${CONDA_PYTHON} > ${build_dir}/environment.yaml
         echo "=== input conda env file ==="
         cat ${CONDA_ENV}
         echo "=== conda env file ==="
@@ -126,7 +126,7 @@ function prepare_conda_env() {
     else
         # replace the default python version with the provided value
         local python_index=$(yq ".dependencies[] | select(test(\"${initial_version_string}\")) | path | .[-1]" ${env_file})
-        yq eval ".dependencies[${python_index}] |= \"python ==${new_version}\""
+        yq eval ".dependencies[${python_index}] |= \"python ==${new_version}\"" ${env_file}
     fi
     set +x
 }
