@@ -42,7 +42,7 @@ function main() {
 
     local hashed_digest=$(image_digest ${image_path}/${image_hash})
     if use_cached_image && [ -n ${hashed_digest} ] ; then
-        if [ "$(image_digest ${image_path}/${IMAGE_TAG})" == ${hashed_digest} ] ; then
+        if [ "$(image_digest ${image_path}/${IMAGE_TAG})") == ${hashed_digest} ] ; then
             echo cache exists: using it
         else
             echo rebuild anyway
