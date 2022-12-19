@@ -23,7 +23,9 @@
 function main() {
     
     login_to_registry ${REGISTRY_NAME} ${REGISTRY_USERNAME} ${REGISTRY_PASSWORD} ||
-        fail "Error logging into registry ${REGISTRY_NAME}"
+        fatal "Error logging into registry ${REGISTRY_NAME}"
+
+    [ -f ${CONDA_ENV} ] || fatal "missing required file: ${CONDA_ENV}"
 
     local image_path=${REGISTRY_NAME}/${IMAGE_NAME}
     local image_hash=$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON_VERSION})
@@ -47,14 +49,13 @@ function main() {
     fi
 
     # The image is not cached or the caller requires rebuild
-    echo "image=${image_path}/${image_hash}" >> ${GITHUB_OUTPUT}
-    
+    echo "image=${image_path}/${image_hash}" >> ${GITHUB_OUTPUT}    
 }
 
-function fail() {
+function fatal() {
     local message="$1"
     
-    echo "FAIL: ${message}"
+    echo "FATAL: ${message}"
     exit 1
 }
 
