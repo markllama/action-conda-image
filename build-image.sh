@@ -82,7 +82,7 @@ function use_cached_image() {
 function image_digest() {
     local image_path=$1
 
-    local digest=$(${DOCKER} manifest inspect ${image_path}) || digest="")
+    local digest=$(${DOCKER} manifest inspect ${image_path}) || digest=""
 }
 
 # Generate a hash using a conda env file and the desired Python version string
