@@ -60,7 +60,7 @@ function main() {
     fi
 
     # The image is not cached or the caller requires rebuild
-    echo "image=${image_path}/${image_hash}" >> ${GITHUB_OUTPUT}    
+    echo "image=${image_path}/${image_hash}" >> ${GITHUB_OUTPUT}
 }
 
 function fatal() {
