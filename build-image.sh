@@ -21,11 +21,12 @@
 : ${DOCKER:=docker}
 
 function main() {
-    
+
+    # Quit fast if env file isn't provided
+    [ -f ${CONDA_ENV} ] || fatal "missing required file: ${CONDA_ENV}"
+
     login_to_registry ${REGISTRY_NAME} ${REGISTRY_USERNAME} ${REGISTRY_PASSWORD} ||
         fatal "Error logging into registry ${REGISTRY_NAME}"
-
-    [ -f ${CONDA_ENV} ] || fatal "missing required file: ${CONDA_ENV}"
 
     local image_path=${REGISTRY_NAME}/${IMAGE_NAME}
     local image_hash=$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON_VERSION})
