@@ -49,6 +49,8 @@ function main() {
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC_FILE} > ${build_dir}/condarc.yaml
         prepare_conda_env ${CONDA_ENV_FILE} ${CONDA_PYTHON_VERSION} > ${build_dir}/environment.yaml
+        echo "=== input conda env file ==="
+        cat ${CONDA_ENV_FILE}
         echo "=== conda env file ==="
         cat ${build_dir}/environment.yaml
         echo "======================"
