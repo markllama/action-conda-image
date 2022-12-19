@@ -42,8 +42,8 @@ function main() {
 
     set -x
     local hashed_digest=$(image_digest ${image_path}/${image_hash})
-    if use_cached_image && [ -n ${hashed_digest} ] ; then
-        if [ "$(image_digest ${image_path}/${IMAGE_TAG}) 2>/dev/null" == ${hashed_digest} ] ; then
+    if use_cached_image && [ "${hashed_digest}" != 'unknown' ] ; then
+        if [ "$(image_digest ${image_path}/${IMAGE_TAG} 2>/dev/null)" == "${hashed_digest}" ] ; then
             echo cache exists: using it
         else
             echo rebuild anyway
@@ -84,7 +84,7 @@ function use_cached_image() {
 function image_digest() {
     local image_path=$1
 
-    local digest=$(${DOCKER} manifest inspect ${image_path} 2>/dev/null) || digest=""
+    local digest=$(${DOCKER} manifest inspect ${image_path} 2>/dev/null) || digest="unknown"
 }
 
 # Generate a hash using a conda env file and the desired Python version string
