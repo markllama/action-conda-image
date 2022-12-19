@@ -40,7 +40,6 @@ function main() {
     #   Or the image does not exist with the appropriate hash
     #   Or the two images are not identical
 
-    set -x
     local hashed_digest=$(image_digest ${image_path}/${image_hash})
     if use_cached_image && [ "${hashed_digest}" != 'unknown' ] ; then
         if [ "$(image_digest ${image_path}/${IMAGE_TAG} 2>/dev/null)" == "${hashed_digest}" ] ; then
@@ -53,9 +52,8 @@ function main() {
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC} > ${build_dir}/condarc.yaml
         prepare_conda_env ${CONDA_ENV} ${CONDA_PYTHON} > ${build_dir}/environment.yaml
-        build_image ${build_dir}
+        build_image ${IMAGE_TAG} ${image_hash} ${REGISTRY_PASSWORD}
     fi
-    set +x
     
     # The image is not cached or the caller requires rebuild
     echo "image=${image_path}/${image_hash}" >> ${GITHUB_OUTPUT}
@@ -129,11 +127,18 @@ function prepare_conda_env() {
     fi
 }
 
-
 function build_image() {
-    local build_dir=$1
-    echo building image in ${build_dir}
-    find ${build_dir}
+    local hash_tag=$1
+    local python_tag=$2
+    local token=$3
+    
+    docker buildx build \
+           --no-cache \
+           --pull \
+           --push \
+           --build-arg PULL_TOKEN="${token}" \
+           --tag "${hash_tag}" --tag "${python_tag}" . ||
+        fatal "docker build failed"
 }
 
 
