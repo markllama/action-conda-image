@@ -21,6 +21,11 @@
 : ${DOCKER:=docker}
 
 function main() {
+
+    echo "=== BEGIN env ==="
+    env | sort
+    echo "=== ENT env ==="
+    
     login_to_registry ${REGISTRY_NAME} ${REGISTRY_USERNAME} ${REGISTRY_PASSWORD} ||
         fail "Error logging into registry ${REGISTRY_NAME}"
 
