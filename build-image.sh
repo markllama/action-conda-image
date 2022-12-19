@@ -113,7 +113,9 @@ function prepare_conda_env() {
 }
 
 function build_image() {
-    echo building image
+    local build_dir=$1
+    echo building image in ${build_dir}
+    find ${build_dir}
 }
 
 
