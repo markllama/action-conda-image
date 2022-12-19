@@ -40,9 +40,10 @@ function main() {
     #   Or the image does not exist with the appropriate hash
     #   Or the two images are not identical
 
+    set -x
     local hashed_digest=$(image_digest ${image_path}/${image_hash})
     if use_cached_image && [ -n ${hashed_digest} ] ; then
-        if [ "$(image_digest ${image_path}/${IMAGE_TAG})" == ${hashed_digest} ] ; then
+        if [ "$(image_digest ${image_path}/${IMAGE_TAG}) 2>/dev/null" == ${hashed_digest} ] ; then
             echo cache exists: using it
         else
             echo rebuild anyway
@@ -54,7 +55,8 @@ function main() {
         prepare_conda_env ${CONDA_ENV} ${CONDA_PYTHON} > ${build_dir}/environment.yaml
         build_image ${build_dir}
     fi
-
+    set +x
+    
     # The image is not cached or the caller requires rebuild
     echo "image=${image_path}/${image_hash}" >> ${GITHUB_OUTPUT}
 }
@@ -82,7 +84,7 @@ function use_cached_image() {
 function image_digest() {
     local image_path=$1
 
-    local digest=$(${DOCKER} manifest inspect ${image_path}) || digest=""
+    local digest=$(${DOCKER} manifest inspect ${image_path} 2>/dev/null) || digest=""
 }
 
 # Generate a hash using a conda env file and the desired Python version string
@@ -114,7 +116,6 @@ function prepare_conda_env() {
     local env_file=$1
     local new_version=$2
 
-    set -x
     # get the python version string from the env file (if set)
     local initial_version_string=$(yq eval '.dependencies[] | select(test("^python( |$)"))' ${env_file})
 
@@ -126,7 +127,6 @@ function prepare_conda_env() {
         local python_index=$(yq ".dependencies[] | select(test(\"${initial_version_string}\")) | path | .[-1]" ${env_file})
         yq eval ".dependencies[${python_index}] |= \"python ==${new_version}\"" ${env_file}
     fi
-    set +x
 }
 
 
