@@ -116,6 +116,7 @@ function prepare_conda_env() {
     local env_file=$1
     local new_version=$2
 
+    set -x
     # get the python version string from the env file (if set)
     local initial_version_string=$(yq eval '.dependencies[] | select( . | match("^python +"))' ${env_file})
 
@@ -127,6 +128,7 @@ function prepare_conda_env() {
         local python_index=$(yq ".dependencies | index(\"${initial_version_string}\")")
         yq eval ".dependencies[${python_index}] |= \"python ==${new_version}\""
     fi
+    set +x
 }
 
 
