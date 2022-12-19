@@ -32,9 +32,12 @@ function main() {
     #   The image does not exist with the appropriate tag
     #   Or the image does not exist with the appropriate hash
     #   Or the two images are not identical
-    if !use_cached_image ||
-            !(image_exists ${image_path}/${IMAGE_TAG} && image_exists ${image_path}/${image_hash})
-    then 
+    if use_cached_image && 
+            image_exists ${image_path}/${IMAGE_TAG} &&
+            image_exists ${image_path}/${image_hash}
+    then
+        echo cache exists: using it
+    else
         prepare_conda_rc
         prepare_conda_env
         build_image
