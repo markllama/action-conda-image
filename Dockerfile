@@ -3,12 +3,12 @@ ENV CONDARC=/condarc.yaml
 
 COPY build/* /
 
-RUN conda env create --file /environment.yaml --name env
-RUN conda install conda-pack
-RUN conda-pack -j 4 -n env -o /tmp/env.tar
-RUN mkdir /venv
-RUN tar --directory /venv --extract --file /tmp/env.tar
-RUN /venv/bin/conda-unpack
+RUN conda env create --file /environment.yaml --name env && \
+    conda install conda-pack && \
+    conda-pack -j 4 -n env -o /tmp/env.tar && \
+    mkdir /venv && \
+    tar --directory /venv --extract --file /tmp/env.tar && \
+    /venv/bin/conda-unpack
 
 FROM debian:buster-slim
 
