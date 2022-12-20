@@ -52,7 +52,7 @@ function main() {
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC} > ${build_dir}/condarc.yaml
         prepare_conda_env ${CONDA_ENV} ${CONDA_PYTHON} > ${build_dir}/environment.yaml
-        build_image ${REGISTRY_PASSWORD} ${IMAGE_TAG} ${image_hash}
+        build_image ${image_path} ${IMAGE_TAG} ${image_hash} ${REGISTRY_PASSWORD}
     fi
     
     # The image is not cached or the caller requires rebuild
@@ -128,18 +128,20 @@ function prepare_conda_env() {
 }
 
 function build_image() {
-    local token=$1
+    local image_path=$1
     local python_tag=$2
     local hash_tag=$3
-    
+    local token=$4
+
+    image_path=${registry}/${image_name}
     set -x
     docker buildx build \
            --no-cache \
            --pull \
            --push \
            --build-arg PULL_TOKEN="${token}" \
-           --tag "${hash_tag}" \
-           --tag "${python_tag}" \
+           --tag "${image_path}:${python_tag}" \
+           --tag "${image_path}:${hash_tag}" \
            ${GITHUB_ACTION_PATH} ||
         fatal "docker build failed"
     set +x
