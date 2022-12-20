@@ -31,7 +31,8 @@ function main() {
     login_to_registry ${REGISTRY_NAME} ${REGISTRY_USERNAME} ${REGISTRY_PASSWORD} ||
         fatal "Error logging into registry ${REGISTRY_NAME}"
 
-    local image_path=${REGISTRY_NAME}/${REGISTRY_USERNAME}/${IMAGE_NAME}
+    echo REGISTR
+    local image_path=${REGISTRY_NAME}/${IMAGE_NAME}
     echo "image_path=${image_path}"
     local hash_tag="v7-$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON})"
     
