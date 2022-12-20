@@ -13,7 +13,6 @@ RUN apt-get update && \
         git \
         && \
     rm -rf /var/lib/apt/lists/*
-RUN pip install yq
 RUN useradd -u 1001 -m runner
 
 #COPY --from=build --chown=1001:1001 /venv /venv

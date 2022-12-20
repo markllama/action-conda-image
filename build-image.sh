@@ -32,7 +32,7 @@ function main() {
         fatal "Error logging into registry ${REGISTRY_NAME}"
 
     local image_path=${REGISTRY_NAME}/${IMAGE_NAME}
-    local image_hash=$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON})
+    local image_hash="v7-$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON})"
 
     # The image needs rebuilding if:
     #   The user requests rebuild
@@ -130,20 +130,18 @@ function prepare_conda_env() {
 function build_image() {
     local token=$1
     local python_tag=$2
-#    local hash_tag=$3
-
-    pwd
-    ls
-
+    local hash_tag=$3
+    
     set -x
     docker buildx build \
            --no-cache \
            --pull \
            --push \
            --build-arg PULL_TOKEN="${token}" \
-           --tag "${python_tag}" ${GITHUB_ACTION_PATH} ||
+           --tag "${hash_tag}" \
+           --tag "${python_tag}" \
+           ${GITHUB_ACTION_PATH} ||
         fatal "docker build failed"
-#    --tag "${hash_tag}" \
     set +x
 }
 
