@@ -1,5 +1,5 @@
 FROM continuumio/miniconda3:latest AS build
-ENV CONDARC=/condarc
+ENV CONDARC=/condarc.yaml
 
 COPY build/* /
 
