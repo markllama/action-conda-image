@@ -52,7 +52,7 @@ function main() {
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC} > ${build_dir}/condarc.yaml
         prepare_conda_env ${CONDA_ENV} ${CONDA_PYTHON} > ${build_dir}/environment.yaml
-        build_image ${REGISTRY_PASSWORD} ${IMAGE_TAG}
+        build_image ${REGISTRY_PASSWORD} ${IMAGE_TAG} ${image_hash}
     fi
     
     # The image is not cached or the caller requires rebuild
