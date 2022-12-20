@@ -32,6 +32,7 @@ function main() {
         fatal "Error logging into registry ${REGISTRY_NAME}"
 
     local image_path=${REGISTRY_NAME}/${REGISTRY_USERNAME}/${IMAGE_NAME}
+    echo "image_path=${image_path}"
     local hash_tag="v7-$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON})"
     
     # The image needs rebuilding if:
