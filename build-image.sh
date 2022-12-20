@@ -32,31 +32,32 @@ function main() {
         fatal "Error logging into registry ${REGISTRY_NAME}"
 
     local image_path=${REGISTRY_NAME}/${REGISTRY_USERNAME}/${IMAGE_NAME}
-    local image_hash="v7-$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON})"
-
+    local hash_tag="v7-$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON})"
+    
     # The image needs rebuilding if:
     #   The user requests rebuild
     #   The image does not exist with the appropriate tag
     #   Or the image does not exist with the appropriate hash
     #   Or the two images are not identical
 
-    local hashed_digest=$(image_digest ${image_path}/${image_hash})
+    local hashed_digest=$(image_digest ${image_path}/${hash_tag})
     if force_build || [ "${hashed_digest}" == 'unknown' ] ; then
         local build_dir=${GITHUB_ACTION_PATH}/build
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC} > ${build_dir}/condarc.yaml
         prepare_conda_env ${CONDA_ENV} ${CONDA_PYTHON} > ${build_dir}/environment.yaml
-        build_image ${image_path} ${IMAGE_TAG} ${image_hash} ${REGISTRY_PASSWORD}
+        build_image ${image_path} ${hash_tag} ${IMAGE_TAG} ${REGISTRY_PASSWORD}
     else
         if [ "$(image_digest ${image_path}/${IMAGE_TAG} 2>/dev/null)" == "${hashed_digest}" ]
         then
-            echo "retag the image with python version"
+            echo "re-tagging the existing image"
+            retag_image ${image_path} ${hash_tag} ${IMAGE_TAG}
         else
             echo "cache exists: using it"
         fi
     fi
     
-    echo "image=${image_path}/${image_hash}" >> ${GITHUB_OUTPUT}
+    echo "image=${image_path}/${hash_tag}" >> ${GITHUB_OUTPUT}
 }
 
 function fatal() {
@@ -115,22 +116,22 @@ function prepare_conda_env() {
     local new_version=$2
 
     # get the python version string from the env file (if set)
-    local initial_version_string=$(yq eval '.dependencies[] | select(test("^python( |$)"))' ${env_file})
+    local old_version=$(yq eval '.dependencies[] | select(test("^python( |$)"))' ${env_file})
 
-    if [ "${initial_version_string}x" == 'x' ] ; then
+    if [ "${old_version}x" == 'x' ] ; then
         # The python version is not specified: Append it
         yq eval ".dependencies += [\"python == ${new_version}\"]"
     else
         # replace the default python version with the provided value
-        local python_index=$(yq ".dependencies[] | select(test(\"${initial_version_string}\")) | path | .[-1]" ${env_file})
+        local python_index=$(yq ".dependencies[] | select(test(\"${old_version}\")) | path | .[-1]" ${env_file})
         yq eval ".dependencies[${python_index}] |= \"python ==${new_version}\"" ${env_file}
     fi
 }
 
 function build_image() {
     local image_path=$1
-    local python_tag=$2
-    local hash_tag=$3
+    local hash_tag=$2
+    local python_tag=$3
     local token=$4
 
     docker buildx build \
@@ -144,7 +145,20 @@ function build_image() {
         fatal "docker build failed"
 }
 
+function retag_image() {
+    local image_path=$1
+    local hash_tag=$2
+    local python_tag=$3
 
+    ${DOCKER} pull ${image_path}:${hash_tag} ||
+        fatal "failed to pull existing image: ${image_path}:${hash_tag}"
+    ${DOCKER} tag ${image_path}:${hash_tag} ${image_path}:${python_tag} ||
+        fatal "failed to tag existing image: ${image_path}:${hash_tag} as ${image_path}:${python_tag}"
+    ${DOCKER} push ${image_path}:${python_tag} ||
+        fatal "failed to push retagged image: ${image_path}:${python_tag}"
+}
+
+# =========
+# CALL MAIN
+# =========
 main $*
-
-echo "image-id=testvalue"
