@@ -35,6 +35,7 @@ function main() {
     local image_path=${REGISTRY_NAME}/${IMAGE_NAME}
     echo "image_path=${image_path}"
     local hash_tag="v7-$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON})"
+    echo "hash_tag={hash_tag}"
     
     # The image needs rebuilding if:
     #   The user requests rebuild
@@ -43,17 +44,20 @@ function main() {
     #   Or the two images are not identical
 
     local hashed_digest=$(image_digest ${image_path}/${hash_tag})
+    echo "hashed_digest=${hashed_digest}"
     if force_build || [ "${hashed_digest}" == 'unknown' ] ; then
         local build_dir=${GITHUB_ACTION_PATH}/build
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC} > ${build_dir}/condarc.yaml
         prepare_conda_env ${CONDA_ENV} ${CONDA_PYTHON} > ${build_dir}/environment.yaml
         
-        echo "building ${image_path}:${IMAGE_TAG}"
+        echo "building ${image_path}:${hash_tag}"
+        #echo "building ${image_path}:${IMAGE_TAG}"
         build_image ${image_path} ${hash_tag} ${IMAGE_TAG} ${REGISTRY_PASSWORD}
     else
-        if [ "$(image_digest ${image_path}/${IMAGE_TAG} 2>/dev/null)" == "${hashed_digest}" ]
-        then
+        local tagged_digest=$(image_digest ${image_path}/${IMAGE_TAG} 2>/dev/null)
+        echo "tagged_digest=${tagged_digest}"
+        if [ "${tagged_digest}" == "${hashed_digest}" ] ; then
             echo "re-tagging the existing image: ${hash_tag} -> ${IMAGE_TAG}"
             retag_image ${image_path} ${hash_tag} ${IMAGE_TAG}
         else
