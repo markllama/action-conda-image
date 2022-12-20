@@ -26,9 +26,9 @@ inputs:
   image-tag:
     description: 'The tag to apply to the image'
     required: true
-  image-cached:
-    description: 'Skip the building of the image if it is already cached'
-    default: 'true'
+  force-build:
+    description: 'Force rebuild'
+    default: 'false'
 
   # Miniconda configuration parameters
   conda-rc:
@@ -67,7 +67,7 @@ runs:
 
         IMAGE_NAME: ${{ inputs.image-name }}
         IMAGE_TAG: ${{ inputs.image-tag }}
-        IMAGE_CACHED: ${{ inputs.image-cached }}
+        FORCE_BUILD: ${{ inputs.force-build }}
 
         CONDA_RC: ${{ inputs.conda-rc }}
         CONDA_ENV: ${{ inputs.conda-env }}

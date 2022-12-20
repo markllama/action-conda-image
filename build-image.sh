@@ -41,21 +41,21 @@ function main() {
     #   Or the two images are not identical
 
     local hashed_digest=$(image_digest ${image_path}/${image_hash})
-    if use_cached_image && [ "${hashed_digest}" != 'unknown' ] ; then
-        if [ "$(image_digest ${image_path}/${IMAGE_TAG} 2>/dev/null)" == "${hashed_digest}" ] ; then
-            echo cache exists: using it
-        else
-            echo rebuild anyway
-        fi
-    else
+    if force_build || [ "${hashed_digest}" == 'unknown' ] ; then
         local build_dir=${GITHUB_ACTION_PATH}/build
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC} > ${build_dir}/condarc.yaml
         prepare_conda_env ${CONDA_ENV} ${CONDA_PYTHON} > ${build_dir}/environment.yaml
         build_image ${image_path} ${IMAGE_TAG} ${image_hash} ${REGISTRY_PASSWORD}
+    else
+        if [ "$(image_digest ${image_path}/${IMAGE_TAG} 2>/dev/null)" == "${hashed_digest}" ]
+        then
+            echo "retag the image with python version"
+        else
+            echo "cache exists: using it"
+        fi
     fi
     
-    # The image is not cached or the caller requires rebuild
     echo "image=${image_path}/${image_hash}" >> ${GITHUB_OUTPUT}
 }
 
@@ -74,8 +74,8 @@ function login_to_registry() {
     echo ${password} | ${DOCKER} login ${registry} --username ${username} --password-stdin
 }
 
-function use_cached_image() {
-    [ "${IMAGE_CACHED}" == "true" ]
+function force_build() {
+    [ "${FORCE_BUILD}" == "true" ]
 }
 
 # A cached image must exist with the provided name *and* tag
