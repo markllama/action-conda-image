@@ -133,8 +133,6 @@ function build_image() {
     local hash_tag=$3
     local token=$4
 
-    image_path=${registry}/${image_name}
-    set -x
     docker buildx build \
            --no-cache \
            --pull \
@@ -144,7 +142,6 @@ function build_image() {
            --tag "${image_path}:${hash_tag}" \
            ${GITHUB_ACTION_PATH} ||
         fatal "docker build failed"
-    set +x
 }
 
 
