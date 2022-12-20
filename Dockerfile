@@ -5,10 +5,18 @@ COPY build/* /
 
 RUN conda env create --file /environment.yaml --name env && \
     conda install conda-pack && \
+    rm -rf /environment.yaml condarc.yaml && \
     conda-pack -j 4 -n env -o /tmp/env.tar && \
     mkdir /venv && \
-    tar --directory /venv --extract --file /tmp/env.tar && \
-    /venv/bin/conda-unpack
+    cd /venv && \
+    tar --extract --file /tmp/env.tar && \
+    rm -f /tmp/env.tar && \
+    /venv/bin/conda-unpack && \
+    for dir in /opt/conda/pkgs/*/info/licenses; do \
+        final_dir=`echo $dir | sed -e "s|/opt/conda/|/venv/|g" -e "s|info/||g"`; \
+        mkdir -p "${final_dir}"; \
+        cp -r "${dir}" "${final_dir}"; \
+    done
 
 FROM debian:buster-slim
 
