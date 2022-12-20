@@ -46,11 +46,13 @@ function main() {
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC} > ${build_dir}/condarc.yaml
         prepare_conda_env ${CONDA_ENV} ${CONDA_PYTHON} > ${build_dir}/environment.yaml
+        
+        echo "building ${image_path}:${IMAGE_TAG}"
         build_image ${image_path} ${hash_tag} ${IMAGE_TAG} ${REGISTRY_PASSWORD}
     else
         if [ "$(image_digest ${image_path}/${IMAGE_TAG} 2>/dev/null)" == "${hashed_digest}" ]
         then
-            echo "re-tagging the existing image"
+            echo "re-tagging the existing image: ${hash_tag} -> ${IMAGE_TAG}"
             retag_image ${image_path} ${hash_tag} ${IMAGE_TAG}
         else
             echo "cache exists: using it"
