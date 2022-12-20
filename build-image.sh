@@ -132,6 +132,8 @@ function build_image() {
     local python_tag=$2
 #    local hash_tag=$3
 
+    pwd
+    ls
 
     set -x
     docker buildx build \
@@ -139,7 +141,7 @@ function build_image() {
            --pull \
            --push \
            --build-arg PULL_TOKEN="${token}" \
-           --tag "${python_tag}" . ||
+           --tag "${python_tag}" ${GITHUB_ACTION_PATH} ||
         fatal "docker build failed"
 #    --tag "${hash_tag}" \
     set +x
