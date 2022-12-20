@@ -31,7 +31,7 @@ function main() {
     login_to_registry ${REGISTRY_NAME} ${REGISTRY_USERNAME} ${REGISTRY_PASSWORD} ||
         fatal "Error logging into registry ${REGISTRY_NAME}"
 
-    local image_path=${REGISTRY_NAME}/${IMAGE_NAME}
+    local image_path=${REGISTRY_NAME}/${REGISTRY_USER}/${IMAGE_NAME}
     local image_hash="v7-$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON})"
 
     # The image needs rebuilding if:
