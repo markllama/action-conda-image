@@ -5,7 +5,7 @@ COPY build/* /
 
 RUN conda install conda-pack && \
     conda env create --file /environment.yaml --name env && \
-    mkdir /venv &&
+    mkdir /venv && \
     conda-pack -j 4 -n env -o /tmp/env.tar && \
     tar --directory /venv --extract --file /tmp/env.tar && \
     /venv/bin/conda-unpack
