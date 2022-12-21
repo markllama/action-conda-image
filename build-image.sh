@@ -44,7 +44,7 @@ function main() {
     
     local hashed_digest=$(image_digest ${image_path}:${hash_tag})
     echo "hashed_digest=${hashed_digest}"
-    if force_build || [ "${hashed_digest}x" != 'x' ] ; then
+    if force_build || [ "${hashed_digest}x" == 'x' ] ; then
         local build_dir=${GITHUB_ACTION_PATH}/build
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC} > ${build_dir}/condarc.yaml
