@@ -42,7 +42,11 @@ function main() {
     #   The image does not exist with the appropriate tag
     #   Or the image does not exist with the appropriate hash
     #   Or the two images are not identical
-
+    echo "=== Test Digest ==="
+    ${DOCKER} manifest inspect ${image_path}
+    echo "==================="
+    echo
+    
     local hashed_digest=$(image_digest ${image_path}/${hash_tag})
     echo "hashed_digest=${hashed_digest}"
     if force_build || [ "${hashed_digest}" == 'unknown' ] ; then
