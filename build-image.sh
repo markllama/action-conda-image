@@ -35,7 +35,7 @@ function main() {
     local image_path=${REGISTRY_NAME}/${IMAGE_NAME}
     echo "image_path=${image_path}"
     local hash_tag="v7-$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON})"
-    echo "hash_tag={hash_tag}"
+    echo "hash_tag=${hash_tag}"
     
     # The image needs rebuilding if:
     #   The user requests rebuild
