@@ -56,7 +56,7 @@ function main() {
     else
         local tagged_digest=$(image_digest ${image_path}:${IMAGE_TAG})
         echo "tagged_digest=${tagged_digest}"
-        if [ "${tagged_digest}" == "${hashed_digest}" ] ; then
+        if [ "${tagged_digest}" != "${hashed_digest}" ] ; then
             echo "re-tagging the existing image: ${hash_tag} -> ${IMAGE_TAG}"
             retag_image ${image_path} ${hash_tag} ${IMAGE_TAG}
         else
