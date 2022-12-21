@@ -64,7 +64,7 @@ function main() {
         fi
     fi
     
-    echo "image=${image_path}/${hash_tag}" >> ${GITHUB_OUTPUT}
+    echo "image-id=${image_path}/${hash_tag}" >> ${GITHUB_OUTPUT}
 }
 
 function fatal() {
