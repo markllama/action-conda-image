@@ -43,11 +43,13 @@ function main() {
     #   Or the image does not exist with the appropriate hash
     #   Or the two images are not identical
     echo "=== Test Digest ==="
-    ${DOCKER} manifest inspect ${image_path}
+    set -x
+    ${DOCKER} manifest inspect ${image_path}:${hash_tag}
+    set +x
     echo "==================="
     echo
     
-    local hashed_digest=$(image_digest ${image_path}/${hash_tag})
+    local hashed_digest=$(image_digest ${image_path}:${hash_tag})
     echo "hashed_digest=${hashed_digest}"
     if force_build || [ "${hashed_digest}" == 'unknown' ] ; then
         local build_dir=${GITHUB_ACTION_PATH}/build
@@ -59,7 +61,7 @@ function main() {
         #echo "building ${image_path}:${IMAGE_TAG}"
         build_image ${image_path} ${hash_tag} ${IMAGE_TAG} ${REGISTRY_PASSWORD}
     else
-        local tagged_digest=$(image_digest ${image_path}/${IMAGE_TAG} 2>/dev/null)
+        local tagged_digest=$(image_digest ${image_path}:${IMAGE_TAG} 2>/dev/null)
         echo "tagged_digest=${tagged_digest}"
         if [ "${tagged_digest}" == "${hashed_digest}" ] ; then
             echo "re-tagging the existing image: ${hash_tag} -> ${IMAGE_TAG}"
