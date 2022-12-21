@@ -31,7 +31,6 @@ function main() {
     login_to_registry ${REGISTRY_NAME} ${REGISTRY_USERNAME} ${REGISTRY_PASSWORD} ||
         fatal "Error logging into registry ${REGISTRY_NAME}"
 
-    echo REGISTR
     local image_path=${REGISTRY_NAME}/${IMAGE_NAME}
     echo "image_path=${image_path}"
     local hash_tag="v7-$(conda_env_hash ${CONDA_ENV} ${CONDA_PYTHON})"
@@ -42,16 +41,10 @@ function main() {
     #   The image does not exist with the appropriate tag
     #   Or the image does not exist with the appropriate hash
     #   Or the two images are not identical
-    echo "=== Test Digest ==="
-    set -x
-    ${DOCKER} manifest inspect ${image_path}:${hash_tag}
-    set +x
-    echo "==================="
-    echo
     
     local hashed_digest=$(image_digest ${image_path}:${hash_tag})
     echo "hashed_digest=${hashed_digest}"
-    if force_build || [ "${hashed_digest}" == 'unknown' ] ; then
+    if force_build || [ "${hashed_digest}x" != 'x' ] ; then
         local build_dir=${GITHUB_ACTION_PATH}/build
         mkdir -p ${build_dir}
         prepare_conda_rc ${CONDA_RC} > ${build_dir}/condarc.yaml
@@ -61,7 +54,7 @@ function main() {
         #echo "building ${image_path}:${IMAGE_TAG}"
         build_image ${image_path} ${hash_tag} ${IMAGE_TAG} ${REGISTRY_PASSWORD}
     else
-        local tagged_digest=$(image_digest ${image_path}:${IMAGE_TAG} 2>/dev/null)
+        local tagged_digest=$(image_digest ${image_path}:${IMAGE_TAG})
         echo "tagged_digest=${tagged_digest}"
         if [ "${tagged_digest}" == "${hashed_digest}" ] ; then
             echo "re-tagging the existing image: ${hash_tag} -> ${IMAGE_TAG}"
@@ -97,7 +90,7 @@ function force_build() {
 function image_digest() {
     local image_path=$1
 
-    ${DOCKER} manifest inspect ${image_path} 2>/dev/null || echo "unknown"    
+    ${DOCKER} manifest inspect ${image_path} 2>/dev/null | jq --raw-output .config.digest
 }
 
 # Generate a hash using a conda env file and the desired Python version string
